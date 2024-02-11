@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 
 stock = []
 FK = []
+PD_DD = []
+CARI_ORAN = []
+KALDIRAC_ORANI = []
 
 directory = '/home/gun/Documents/Amele/RaporTarihleri/'
 reports = '/home/gun/Documents/ProperReports'
@@ -39,13 +42,30 @@ for index, date in enumerate(formatted_dates):
     odenmis_sermaye = report['Ödenmiş Sermaye'].iloc[index]
     hisse_basi_kar = net_kar_yillik/odenmis_sermaye
     hisse_basi_kar = round(hisse_basi_kar, 2)
-
     fiyat_kazanc = round(fiyat / hisse_basi_kar, 2)
     FK.append(fiyat_kazanc)    
+
+    piyasa_degeri = fiyat * odenmis_sermaye
+    toplam_kaynaklar = report['Toplam Kaynaklar'].iloc[index]
+    pd_dd = round(piyasa_degeri / toplam_kaynaklar, 2)
+    PD_DD.append(pd_dd)
+
+    cari = report['Toplam Dönen Varlıklar'].iloc[index]
+    kisa_vadeli_borclar = report['Kısa Vadeli Borçlar'].iloc[index]
+    cari_kisa = round((cari / kisa_vadeli_borclar), 2)
+    CARI_ORAN.append(cari_kisa)
+
+    uzun_vadeli_borclar = report['Uzun Vadeli Borçlar'].iloc[index]
+    toplam_borclar = uzun_vadeli_borclar + kisa_vadeli_borclar
+    kaldirac = toplam_borclar / toplam_kaynaklar
+    KALDIRAC_ORANI.append(kaldirac)
     
 if (len(ratio_df.index) > len(FK)):
     ratio_df = ratio_df.iloc[:len(FK)]
-    ratio_df['F/K'] = FK
 
-# print(ratio_df)
+    ratio_df['F/K'] = FK
+    ratio_df['PD/DD'] = PD_DD
+    ratio_df['Cari Oran'] = CARI_ORAN
+    ratio_df['Kaldıraç Oranı'] = KALDIRAC_ORANI
+
 show(ratio_df)
