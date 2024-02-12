@@ -9,6 +9,11 @@ FK = []
 PD_DD = []
 CARI_ORAN = []
 KALDIRAC_ORANI = []
+BRUT_KAR_MARJI_CEYREK = []
+BRUT_KAR_MARJI_YIL = []
+NET_KAR_MARJI_CEYREK = []
+NET_KAR_MARJI_YIL = []
+OZKAYNAK_KARLILIGI = []
 
 directory = '/home/gun/Documents/Amele/RaporTarihleri/'
 reports = '/home/gun/Documents/ProperReports'
@@ -50,7 +55,7 @@ for index, date in enumerate(formatted_dates):
     pd_dd = round(piyasa_degeri / toplam_kaynaklar, 2)
     PD_DD.append(pd_dd)
 
-    cari = report['Toplam Dönen Varlıklar'].iloc[index]
+    cari = report['Dönen Varlıklar'].iloc[index]
     kisa_vadeli_borclar = report['Kısa Vadeli Borçlar'].iloc[index]
     cari_kisa = round((cari / kisa_vadeli_borclar), 2)
     CARI_ORAN.append(cari_kisa)
@@ -58,8 +63,35 @@ for index, date in enumerate(formatted_dates):
     uzun_vadeli_borclar = report['Uzun Vadeli Borçlar'].iloc[index]
     toplam_borclar = uzun_vadeli_borclar + kisa_vadeli_borclar
     kaldirac = toplam_borclar / toplam_kaynaklar
-    KALDIRAC_ORANI.append(kaldirac)
+    kaldirac_yuzde = "{:.1%}".format(kaldirac)
+    KALDIRAC_ORANI.append(kaldirac_yuzde)
+
+    brut_ceyrek = report['Brüt Kar/Zarar Çeyreklik'].iloc[index]
+    satis_ceyrek = report['Satış Gelirleri Çeyreklik'].iloc[index]
+    brut_kar_marji_ceyrek = brut_ceyrek / satis_ceyrek
+    brut_kar_marji_ceyrek_yuzde = "{:.1%}".format(brut_kar_marji_ceyrek)
+    BRUT_KAR_MARJI_CEYREK.append(brut_kar_marji_ceyrek_yuzde)
+
+    brut_yil = report['Brüt Kar/Zarar Yıllık'].iloc[index]
+    satis_yil = report['Satış Gelirleri Yıllık'].iloc[index]
+    brut_kar_marji_yil = brut_yil / satis_yil
+    brut_kar_marji_yil_yuzde = "{:.1%}".format(brut_kar_marji_yil)
+    BRUT_KAR_MARJI_YIL.append(brut_kar_marji_yil_yuzde)
     
+    net_kar_ceyrek = report['Net Kar/Zarar Çeyreklik'].iloc[index]
+    net_kar_marji_ceyrek = net_kar_ceyrek / satis_ceyrek
+    net_kar_marji_ceyrek_yuzde = "{:.1%}".format(net_kar_marji_ceyrek)
+    NET_KAR_MARJI_CEYREK.append(net_kar_marji_ceyrek_yuzde)
+
+    net_kar_marji_yil = net_kar_yillik / satis_yil
+    net_kar_marji_yil_yuzde = "{:.1%}".format(net_kar_marji_yil)
+    NET_KAR_MARJI_YIL.append(net_kar_marji_yil_yuzde)
+
+    ozsermaye_ortalama = report['Özkaynaklar (ORTALAMA)'].iloc[index]
+    ozkaynak_karliligi = net_kar_yillik / ozsermaye_ortalama
+    ozkaynak_karliligi_yuzde = "{:.1%}".format(ozkaynak_karliligi)
+    OZKAYNAK_KARLILIGI.append(ozkaynak_karliligi_yuzde)
+
 if (len(ratio_df.index) > len(FK)):
     ratio_df = ratio_df.iloc[:len(FK)]
 
@@ -67,5 +99,10 @@ if (len(ratio_df.index) > len(FK)):
     ratio_df['PD/DD'] = PD_DD
     ratio_df['Cari Oran'] = CARI_ORAN
     ratio_df['Kaldıraç Oranı'] = KALDIRAC_ORANI
+    ratio_df['Brüt Kar Marjı Çeyreklik'] = BRUT_KAR_MARJI_CEYREK
+    ratio_df['Brüt Kar Marjı Yıllık'] = BRUT_KAR_MARJI_YIL
+    ratio_df['Net Kar Marjı Çeyreklik'] = NET_KAR_MARJI_CEYREK
+    ratio_df['Net Kar Marjı Yıllık'] = NET_KAR_MARJI_YIL
+    ratio_df['Özkaynak Karlılığı'] = OZKAYNAK_KARLILIGI
 
 show(ratio_df)
