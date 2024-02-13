@@ -10,6 +10,7 @@ sorted_directory = sorted(os.listdir(directory))
 
 
 for i in sorted_directory:
+    print(i)
     stock = []
     FK = []
     PD_DD = []
@@ -35,30 +36,20 @@ for i in sorted_directory:
     ratio_df = pd.DataFrame(index=report.index)
 
     for index, date in enumerate(formatted_dates):
-        # Check If It's Weekday or Weekend and Skip Accordingly
+
         date_obj = datetime.strptime(date, '%Y-%m-%d')
-        # next_day = date_obj + timedelta(days=1)
-        # next_day2 = date_obj + timedelta(days=2)
 
-        # Skip weekends and move to the next available trading day
+        # Check If It's Weekday Or Weekend If So Adjust To Last Friday
         while date_obj.weekday() >= 5:
-            days_until_monday = (7 - date_obj.weekday()) % 7
-            date_obj += timedelta(days=days_until_monday)
-
-        # while next_day.weekday() >= 5:
-        #     days_until_monday = (7 - next_day.weekday()) % 7
-        #     next_day += timedelta(days=days_until_monday + 1)
-        # 
-        # while next_day2.weekday() >= 5:
-        #     days_until_monday = (7 - next_day2.weekday()) % 7
-        #     next_day2 += timedelta(days=days_until_monday)
+            days_until_friday = (date_obj.weekday() - 4) % 7
+            date_obj -= timedelta(days=days_until_friday)
 
         date_obj_str =  date_obj.strftime('%Y-%m-%d') 
-        # next_day_str = next_day.strftime('%Y-%m-%d')
-        # next_day_str2 = next_day2.strftime('%Y-%m-%d') 
 
         data = yf.download(stock, start=date_obj, end=None)['Close']
         fiyat = round(data.iloc[0], 2)
+        print(date_obj_str)
+        print(fiyat)
 
         net_kar_yillik = report['Net Kar/Zarar Yıllık'].iloc[index]
         odenmis_sermaye = report['Ödenmiş Sermaye'].iloc[index]
