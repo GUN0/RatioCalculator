@@ -10,7 +10,6 @@ sorted_directory = sorted(os.listdir(directory))
 
 
 for i in sorted_directory:
-    print(i)
     stock = []
     FK = []
     PD_DD = []
@@ -48,73 +47,69 @@ for i in sorted_directory:
 
         data = yf.download(stock, start=date_obj, end=None)['Close']
         fiyat = round(data.iloc[0], 2)
-        print(date_obj_str)
-        print(fiyat)
-
+        
         net_kar_yillik = report['Net Kar/Zarar Yıllık'].iloc[index]
         odenmis_sermaye = report['Ödenmiş Sermaye'].iloc[index]
-        hisse_basi_kar = np.divide(net_kar_yillik, odenmis_sermaye)
-        if np.isinf(hisse_basi_kar):
-            hisse_basi_kar = 0
-        hisse_basi_kar = round(hisse_basi_kar, 2)
-        fiyat_kazanc = np.divide(fiyat, hisse_basi_kar)
-        if np.isinf(fiyat_kazanc):
-            fiyat_kazanc = 0
-        fiyat_kazanc = round(fiyat_kazanc, 2)
+        net_kar_yillik = net_kar_yillik.astype(np.float64)
+        odenmis_sermaye = odenmis_sermaye.astype(np.float64)
+        hisse_basi_kar = np.divide(net_kar_yillik, odenmis_sermaye, out=np.zeros_like(net_kar_yillik), where=(odenmis_sermaye != 0))
+        hisse_basi_kar = np.round(hisse_basi_kar, 2)
+        fiyat_kazanc = np.divide(fiyat, hisse_basi_kar, out=np.zeros_like(fiyat), where=(hisse_basi_kar != 0))
+        fiyat_kazanc = np.round(fiyat_kazanc, 2)
         FK.append(fiyat_kazanc)    
 
         piyasa_degeri = fiyat * odenmis_sermaye
         toplam_kaynaklar = report['Toplam Kaynaklar'].iloc[index]
-        pd_dd = round(piyasa_degeri / toplam_kaynaklar, 2)
+        pd_dd = np.divide(piyasa_degeri, toplam_kaynaklar, out=np.zeros_like(piyasa_degeri), where=(toplam_kaynaklar != 0))
+        pd_dd = np.round(pd_dd, 2)
         PD_DD.append(pd_dd)
 
         cari = report['Dönen Varlıklar'].iloc[index]
         kisa_vadeli_borclar = report['Kısa Vadeli Borçlar'].iloc[index]
-        cari_kisa = round((cari / kisa_vadeli_borclar), 2)
+        cari = cari.astype(np.float64)
+        kisa_vadeli_borclar = kisa_vadeli_borclar.astype(np.float64)
+        cari_kisa = np.divide(cari, kisa_vadeli_borclar, out=np.zeros_like(cari), where=(kisa_vadeli_borclar != 0))
+        cari_kisa = np.round(cari_kisa, 2)
         CARI_ORAN.append(cari_kisa)
 
         uzun_vadeli_borclar = report['Uzun Vadeli Borçlar'].iloc[index]
         toplam_borclar = uzun_vadeli_borclar + kisa_vadeli_borclar
-        kaldirac = toplam_borclar / toplam_kaynaklar
-        kaldirac = round(kaldirac, 3)
-        # kaldirac_yuzde = "{:.1%}".format(kaldirac)
-        # KALDIRAC_ORANI.append(kaldirac_yuzde)
+        uzun_vadeli_borclar = uzun_vadeli_borclar.astype(np.float64)
+        toplam_borclar = toplam_borclar.astype(np.float64)
+        kaldirac = np.divide(toplam_borclar, toplam_kaynaklar, out=np.zeros_like(toplam_borclar), where=(toplam_kaynaklar != 0))
+        kaldirac = np.round(kaldirac, 3)
         KALDIRAC_ORANI.append(kaldirac)
 
         brut_ceyrek = report['Brüt Kar/Zarar Çeyreklik'].iloc[index]
         satis_ceyrek = report['Satış Gelirleri Çeyreklik'].iloc[index]
-        brut_kar_marji_ceyrek = brut_ceyrek / satis_ceyrek
-        brut_kar_marji_ceyrek = round(brut_kar_marji_ceyrek, 3)
-        # brut_kar_marji_ceyrek_yuzde = "{:.1%}".format(brut_kar_marji_ceyrek)
-        # BRUT_KAR_MARJI_CEYREK.append(brut_kar_marji_ceyrek_yuzde)
+        brut_ceyrek = brut_ceyrek.astype(np.float64)
+        satis_ceyrek = satis_ceyrek.astype(np.float64)
+        brut_kar_marji_ceyrek = np.divide(brut_ceyrek, satis_ceyrek, out=np.zeros_like(brut_ceyrek), where=(satis_ceyrek != 0))
+        brut_kar_marji_ceyrek = np.round(brut_kar_marji_ceyrek, 3)
         BRUT_KAR_MARJI_CEYREK.append(brut_kar_marji_ceyrek)
 
         brut_yil = report['Brüt Kar/Zarar Yıllık'].iloc[index]
         satis_yil = report['Satış Gelirleri Yıllık'].iloc[index]
-        brut_kar_marji_yil = brut_yil / satis_yil
-        brut_kar_marji_yil = round(brut_kar_marji_yil, 3)
-        # brut_kar_marji_yil_yuzde = "{:.1%}".format(brut_kar_marji_yil)
-        # BRUT_KAR_MARJI_YIL.append(brut_kar_marji_yil_yuzde)
+        brut_yil = brut_yil.astype(np.float64)
+        satis_yil = satis_yil.astype(np.float64)
+        brut_kar_marji_yil = np.divide(brut_yil, satis_yil, out=np.zeros_like(brut_yil), where=(satis_yil != 0))
+        brut_kar_marji_yil = np.round(brut_kar_marji_yil, 3)
         BRUT_KAR_MARJI_YIL.append(brut_kar_marji_yil)
         
         net_kar_ceyrek = report['Net Kar/Zarar Çeyreklik'].iloc[index]
-        net_kar_marji_ceyrek = net_kar_ceyrek / satis_ceyrek
-        net_kar_marji_ceyrek = round(net_kar_marji_ceyrek, 3)
-        # net_kar_marji_ceyrek_yuzde = "{:.1%}".format(net_kar_marji_ceyrek)
-        # NET_KAR_MARJI_CEYREK.append(net_kar_marji_ceyrek_yuzde)
+        net_kar_ceyrek = net_kar_ceyrek.astype(np.float64)
+        net_kar_marji_ceyrek = np.divide(net_kar_ceyrek, satis_ceyrek, out=np.zeros_like(net_kar_ceyrek), where=(satis_ceyrek != 0))
+        net_kar_marji_ceyrek = np.round(net_kar_marji_ceyrek, 3)
         NET_KAR_MARJI_CEYREK.append(net_kar_marji_ceyrek)
 
-        net_kar_marji_yil = net_kar_yillik / satis_yil
-        net_kar_marji_yil = round(net_kar_marji_yil, 3)
-        # net_kar_marji_yil_yuzde = "{:.1%}".format(net_kar_marji_yil)
-        # NET_KAR_MARJI_YIL.append(net_kar_marji_yil_yuzde)
+        net_kar_marji_yil = np.divide(net_kar_yillik, satis_yil, out=np.zeros_like(net_kar_yillik), where=(satis_yil != 0))
+        net_kar_marji_yil = np.round(net_kar_marji_yil, 3)
         NET_KAR_MARJI_YIL.append(net_kar_marji_yil)
 
-        ozsermaye_ortalama = report['Özkaynaklar (ORTALAMA)'].iloc[index]
-        ozkaynak_karliligi = net_kar_yillik / ozsermaye_ortalama
-        ozkaynak_karliligi = round(ozkaynak_karliligi, 3)
-        # ozkaynak_karliligi_yuzde = "{:.1%}".format(ozkaynak_karliligi)
-        # OZKAYNAK_KARLILIGI.append(ozkaynak_karliligi_yuzde)
+        ozkaynak_ortalama = report['Özkaynaklar (ORTALAMA)'].iloc[index]
+        ozkaynak_ortalama = ozkaynak_ortalama.astype(np.float64)
+        ozkaynak_karliligi = np.divide(net_kar_yillik, ozkaynak_ortalama, out=np.zeros_like(net_kar_yillik), where=(ozkaynak_ortalama != 0))
+        ozkaynak_karliligi = np.round(ozkaynak_karliligi, 3)
         OZKAYNAK_KARLILIGI.append(ozkaynak_karliligi)
 
     if (len(ratio_df.index) > len(FK)):
