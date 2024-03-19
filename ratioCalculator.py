@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import pandas as pd
 import numpy as np
 
@@ -22,6 +24,7 @@ for i in sorted_directory:
     NET_KAR_MARJI_YIL = []
     OZKAYNAK_KARLILIGI = []
     ROA = []
+    ROCE = []
 
     stock_raw = os.path.splitext(i)[0]
     stock.append(stock_raw + ".IS")
@@ -169,8 +172,36 @@ for i in sorted_directory:
             out=np.zeros_like(net_kar_yillik),
             where=(ortalama_kaynaklar != 0),
         )
-        roa = np.round(roa, 4)
+        roa = np.round(roa, 5)
         ROA.append(roa)
+
+        ar_ge_giderleri = report["Araştırma ve Geliştirme Giderleri (-)"].iloc[index]
+        ar_ge_giderleri = ar_ge_giderleri.astype(np.float64)
+        pazarlama_satis_dagitim_giderleri = report[
+            "Pazarlama, Satış ve Dağıtım Giderleri (-)"
+        ].iloc[index]
+        pazarlama_satis_dagitim_giderleri = pazarlama_satis_dagitim_giderleri.astype(
+            np.float64
+        )
+        genel_yonetim_giderleri = report["Genel Yönetim Giderleri (-)"].iloc[index]
+        genel_yonetim_giderleri = genel_yonetim_giderleri.astype(np.float64)
+        ebit = (
+            brut_yil
+            + ar_ge_giderleri
+            + pazarlama_satis_dagitim_giderleri
+            + genel_yonetim_giderleri
+        )
+        toplam_varliklar = report["Toplam Varlıklar"].iloc[index]
+        toplam_varliklar = toplam_varliklar.astype(np.float64)
+        capital_employed = toplam_varliklar - kisa_vadeli_borclar
+        roce = np.divide(
+            ebit,
+            capital_employed,
+            out=np.zeros_like(ebit),
+            where=(capital_employed != 0),
+        )
+        roce = np.round(roce, 5)
+        ROCE.append(roce)
 
     if len(ratio_df.index) > len(FK):
         ratio_df = ratio_df.iloc[: len(FK)]
@@ -185,6 +216,7 @@ for i in sorted_directory:
         ratio_df["Net Kar Marjı Yıllık"] = NET_KAR_MARJI_YIL
         ratio_df["Özkaynak Karlılığı"] = OZKAYNAK_KARLILIGI
         ratio_df["ROA"] = ROA
+        ratio_df["ROCE"] = ROCE
 
     # show(ratio_df)
     ratio_df.to_excel(
