@@ -185,11 +185,17 @@ for i in sorted_directory:
         )
         genel_yonetim_giderleri = report["Genel Yönetim Giderleri (-)"].iloc[index]
         genel_yonetim_giderleri = genel_yonetim_giderleri.astype(np.float64)
+        diger_faliyet_giderleri = report["Diğer Faaliyet Giderleri (-)"].iloc[index]
+        diger_faliyet_giderleri = diger_faliyet_giderleri.astype(np.float64)
+        diger_faliyet_gelirleri = report["Diğer Faaliyet Gelirleri"].iloc[index]
+        diger_faliyet_gelirleri = diger_faliyet_gelirleri.astype(np.float64)
         ebit = (
             brut_yil
             + ar_ge_giderleri
             + pazarlama_satis_dagitim_giderleri
             + genel_yonetim_giderleri
+            + diger_faliyet_giderleri
+            + diger_faliyet_gelirleri
         )
         toplam_varliklar = report["Toplam Varlıklar"].iloc[index]
         toplam_varliklar = toplam_varliklar.astype(np.float64)
